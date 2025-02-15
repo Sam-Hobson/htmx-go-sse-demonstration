@@ -1,0 +1,73 @@
+{{ block "root" . }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>My contact list!</title>
+
+	<!-- HTMX and HTMX server sent events (SSE) -->
+	<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+	<script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+
+	<!-- Custom JS -->
+	<script src="/public/scripts/helpers.js"></script>
+
+	<!-- Css -->
+	<link rel="stylesheet" href="/public/styles/contactList.css">
+</head>
+
+<body>
+	<h1>Contacts</h1>
+
+	<form id="contact-form" hx-post="/contacts?mode=html" hx-target="#contact-form-errors"
+		hx-on::after-request="if (successStatusCode(event)) this.reset()"
+		hx-on::before-on-load="allowStatusCodes(event, 400)">
+
+		<div class="contact-input-field">First name: <input type="text" name="FirstName" /></div>
+		<div class="contact-input-field">Last name: <input type="text" name="LastName" /></div>
+		<div class="contact-input-field">Height: <input type="text" name="Height" /></div>
+		<div class="contact-input-field">Gender: <input type="text" name="Gender" /></div>
+		<div class="contact-input-field">Age: <input type="text" name="Age" /></div>
+
+		<p><button type="submit">Submit</button></p>
+	</form>
+
+	<div id="contact-form-errors"></div>
+
+	<hr />
+
+	<div id="contact-list-sse" hx-ext="sse" sse-connect="/contacts?mode=sse" sse-swap="add-contact,delete-contact"
+		hx-swap="beforeend">
+		{{ template "contactRowSet" .ContactList }}
+	</div>
+
+</body>
+
+</html>
+{{ end }}
+
+{{ block "contactRowSet" . }}
+{{ range .Items }}
+{{ template "contactRow" . }}
+{{ end }}
+{{ end }}
+
+{{ block "contactRow" . }}
+<div id="contact-row-{{ .Id }}">
+	<div><b>Id:</b> {{ .Id }}</div>
+	<div><b>First name:</b> {{ .FirstName }}</div>
+	<div><b>Last name:</b> {{ .LastName }}</div>
+	<div><b>Age:</b> {{ .Age }}</div>
+	<div><b>Height:</b> {{ .Height }}</div>
+	<div><b>Gender:</b> {{ .Gender }}</div>
+	<p><button hx-post="/delete?id={{ .Id }}">Delete</button></p>
+	<hr />
+</div>
+{{ end }}
+
+{{ block "deleteContactRow" . }}
+<div id="contact-row-{{ .Id }}" hx-swap-oob="delete"></div>
+{{ end }}

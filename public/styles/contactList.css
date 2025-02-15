@@ -1,0 +1,20 @@
+#contact-form {
+	width: 300px;
+	position: relative;
+}
+
+#contact-form .contact-input-field {
+	margin-bottom: 5px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#contact-form .contact-input-field input,
+#contact-form .contact-input-field select {
+	width: 150px;
+}
+
+#contact-form-errors {
+	color: red;
+}
